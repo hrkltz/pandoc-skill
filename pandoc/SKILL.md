@@ -16,8 +16,9 @@ metadata:
 compatibility: >
   Requires: pandoc (https://pandoc.org).
   Optional PDF engines: xelatex (texlive-xetex, recommended for Unicode/fonts),
-  pdflatex (texlive-latex-base, fastest for ASCII), lualatex (texlive-luatex, complex typography),
-  wkhtmltopdf (WebKit-based HTML/CSS rendering), weasyprint (CSS Paged Media, Python-based).
+  lualatex (texlive-luatex, complex typography), tectonic (self-contained TeX workflow),
+  pdflatex (texlive-latex-base, fastest for ASCII), weasyprint (CSS Paged Media, Python-based),
+  wkhtmltopdf (WebKit-based HTML/CSS rendering), prince (commercial HTML/CSS renderer).
 ---
 
 # Pandoc Document Converter
@@ -34,7 +35,9 @@ bash <skill-dir>/scripts/convert.sh <input-file> <output-file> [options...]
 ```
 
 The script auto-detects formats from file extensions and applies sensible defaults (standalone
-output, UTF-8 encoding, appropriate PDF engine). Any extra arguments are passed through to pandoc.
+output, appropriate PDF engine, default LaTeX margins for LaTeX-based PDF engines). It also checks
+that `pandoc`, the input file, the output directory, and any requested PDF engine are available.
+Any extra arguments are passed through to pandoc.
 
 ## How Conversions Work
 
@@ -44,19 +47,19 @@ means you can go from nearly any supported input to any supported output. The ke
 1. **Input format** — usually auto-detected from the file extension
 2. **Output format** — auto-detected from the output file extension
 3. **PDF engine** — for PDF output, choose between `xelatex` (best Unicode/font support),
-   `pdflatex` (fastest, good for ASCII-heavy docs), or `wkhtmltopdf` (if installed; HTML-based
-   rendering)
+  `lualatex` (strong Unicode/fonts), `tectonic` (self-contained TeX), `pdflatex` (fastest,
+  good for ASCII-heavy docs), or HTML/CSS engines like `weasyprint`, `wkhtmltopdf`, or `prince`
 4. **Styling** — CSS for HTML-based outputs, LaTeX templates for PDF, reference docs for DOCX/ODT
 
 ## Common Conversion Patterns
 
 ### HTML → PDF
 ```bash
-pandoc input.html -o output.pdf --pdf-engine=xelatex -s
+pandoc input.html -o output.pdf --pdf-engine=weasyprint -s
 ```
 If the HTML uses external CSS, include it:
 ```bash
-pandoc input.html -o output.pdf --pdf-engine=xelatex -s --css=style.css
+pandoc input.html -o output.pdf --pdf-engine=weasyprint -s --css=style.css
 ```
 
 ### Markdown → PDF
@@ -102,8 +105,8 @@ pandoc input.csv -o output.html -s
 
 ### CSS for HTML-based outputs
 Create or use a CSS file and pass it with `--css=path/to/style.css`. For PDF output via
-`wkhtmltopdf`, CSS is respected directly. For PDF via LaTeX engines, CSS is ignored — use
-LaTeX variables or templates instead.
+`weasyprint`, `wkhtmltopdf`, or `prince`, CSS is respected directly. For PDF via LaTeX engines,
+CSS is usually ignored — use LaTeX variables or templates instead.
 
 A sensible default stylesheet is provided at `assets/default.css`. Use it when the user wants
 a clean, readable output without specifying their own styles:
@@ -164,9 +167,10 @@ pandoc input.docx -o output.md --extract-media=./media
 | Problem | Likely cause | Fix |
 |---|---|---|
 | PDF has missing characters | Font doesn't support the glyphs | Use `--pdf-engine=xelatex` with `-V mainfont="DejaVu Serif"` |
-| PDF conversion fails | No LaTeX engine installed | Check `which xelatex pdflatex` — install `texlive-xetex` if missing |
+| PDF conversion fails | No compatible PDF engine installed | Check `which xelatex lualatex tectonic pdflatex weasyprint wkhtmltopdf prince` and install one that matches your output needs |
 | DOCX looks unstyled | No reference doc | Create a styled DOCX template and pass `--reference-doc` |
 | HTML images missing | Relative paths broken | Use `--self-contained` to embed images as base64 |
+| CSS has no effect on PDF | LaTeX PDF engine selected | Use `--pdf-engine=weasyprint`, `--pdf-engine=wkhtmltopdf`, or `--pdf-engine=prince` |
 | Table of contents empty | No headings in source | Ensure source uses `#` headings (Markdown) or `<h1>`–`<h6>` (HTML) |
 
 ## Format Reference
@@ -188,4 +192,5 @@ When a user asks to convert a document, think about:
    converting from DOCX/EPUB to text formats.
 
 Always use the helper script `scripts/convert.sh` as the starting point — it handles the most
-common gotchas automatically. Add extra pandoc flags as needed for the specific use case.
+common gotchas automatically, picks a reasonable PDF engine, and prints recovery hints when PDF
+conversion fails. Add extra pandoc flags as needed for the specific use case.

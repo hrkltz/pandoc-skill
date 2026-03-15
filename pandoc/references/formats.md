@@ -119,12 +119,16 @@ When the user provides a filename, map the extension to the pandoc format:
 | Engine | Command | Best for | Notes |
 |---|---|---|---|
 | XeLaTeX | `--pdf-engine=xelatex` | Unicode, custom fonts | Recommended default; supports system fonts via `mainfont` |
-| pdfLaTeX | `--pdf-engine=pdflatex` | Speed, ASCII-heavy docs | Fastest LaTeX engine; limited Unicode |
 | LuaLaTeX | `--pdf-engine=lualatex` | Complex typography | Slower but very flexible |
-| wkhtmltopdf | `--pdf-engine=wkhtmltopdf` | HTML/CSS rendering | Renders via WebKit; respects CSS |
 | Tectonic | `--pdf-engine=tectonic` | Auto-downloading packages | Self-contained TeX engine |
-| Prince | `--pdf-engine=prince` | Professional HTML→PDF | Commercial; excellent CSS support |
+| pdfLaTeX | `--pdf-engine=pdflatex` | Speed, ASCII-heavy docs | Fastest LaTeX engine; limited Unicode |
 | WeasyPrint | `--pdf-engine=weasyprint` | CSS-based PDF | Python-based; good CSS Paged Media |
+| wkhtmltopdf | `--pdf-engine=wkhtmltopdf` | HTML/CSS rendering | Renders via WebKit; respects CSS |
+| Prince | `--pdf-engine=prince` | Professional HTML→PDF | Commercial; excellent CSS support |
+ 
+When using `scripts/convert.sh`, PDF engine auto-selection prefers HTML/CSS engines for HTML input
+and LaTeX engines for other document types. Override this explicitly with `--pdf-engine=<engine>`
+when needed.
 
 ## Useful Pandoc Options
 
