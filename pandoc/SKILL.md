@@ -10,7 +10,7 @@ description: >
   user wants to apply custom styling, add a table of contents, use a template, or set metadata during
   conversion.
 metadata:
-  version: 1.0.1
+  version: 1.0.2
   author: Oliver Herklotz (oliver-hrkltz)
   homepage: https://github.com/hrkltz/pandoc-skill
 compatibility: >
